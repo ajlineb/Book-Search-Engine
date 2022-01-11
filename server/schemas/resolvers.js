@@ -45,10 +45,28 @@ const resolvers = {
       if (context.user) {
         return User.findOneAndUpdate(
           { _id: bookId },
-          { $addToSet: { savedBook: book } },
-          {}
+          {
+            $addToSet: {
+              savedBooks: [title, authors, description, image, link],
+            },
+          },
+          { new: true, runValidators: true }
         );
       }
+      throw new AuthenticationError("Must be logged in!");
+    },
+
+    removeBook: async (parent, { bookId }, context) => {
+      if (context.user) {
+        return User.findOneAndUpdate(
+          { _id: context.user.id },
+          { $pull: { savedBooks: bookId } },
+          { new: true }
+        );
+      }
+      throw new AuthenticationError("Must be logged in!");
     },
   },
 };
+
+module.exports = resolvers;
