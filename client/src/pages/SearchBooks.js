@@ -9,7 +9,7 @@ import {
   CardColumns,
 } from "react-bootstrap";
 
-import { useMutation } from "@apollo/ApolloClient";
+import { useMutation } from "@apollo/client";
 import { SAVE_BOOK } from "../utils/mutations";
 
 import Auth from "../utils/auth";
@@ -64,22 +64,20 @@ const SearchBooks = () => {
   };
 
   // create function to handle saving a book to our database
-
+  const [addBook, { error }] = useMutation(SAVE_BOOK);
   const handleSaveBook = async (bookId) => {
-    const [addBook, { error, data }] = useMutation(SAVE_BOOK);
-
-    const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
     const token = Auth.loggedIn() ? Auth.getToken() : null;
 
     if (!token) {
       return false;
     }
     try {
+      const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
       const { data } = await addBook(bookToSave, token);
 
-      if (!response.ok) {
-        throw new Error("something went wrong!");
-      }
+      // if (!response.ok) {
+      //   throw new Error("something went wrong!");
+      // }
 
       // if book successfully saves to user's account, save book id to state
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
